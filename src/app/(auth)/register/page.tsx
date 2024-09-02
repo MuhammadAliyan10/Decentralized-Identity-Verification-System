@@ -110,7 +110,7 @@ const Page = () => {
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm text-center">
             Already have an account?{" "}
-            <Link href="/login" className="text-black hover:underline">
+            <Link href="/login" className="hover:underline">
               Login here
             </Link>{" "}
           </div>

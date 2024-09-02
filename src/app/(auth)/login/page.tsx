@@ -95,7 +95,7 @@ const Page = () => {
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm text-center">
             Not register yet?{" "}
-            <Link href="/register" className="text-black hover:underline">
+            <Link href="/register" className="hover:underline">
               Click here to register
             </Link>{" "}
           </div>
