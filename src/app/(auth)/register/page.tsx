@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import {
   Card,
   CardContent,
@@ -8,11 +8,22 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../../../components/ui/form";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Button } from "../../../components/ui/button";
-import { Label } from "../../../components/ui/label";
 import { Input } from "../../../components/ui/input";
 import Link from "next/link";
+import { registerSchema, registerValue } from "@/lib/validation";
+import { PasswordInput } from "@/components/PasswordInput";
+import LoadingButton from "@/components/LoadingButton";
+import { register } from "./action";
 
 type Inputs = {
   username: string;
@@ -21,16 +32,24 @@ type Inputs = {
 };
 
 const Page = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
+  const [error, setError] = useState<string>();
+  const [isPending, startTransition] = useTransition();
+  const form = useForm<registerValue>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      username: "",
+      password: "",
+    },
+  });
 
   // Define the submit handler
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
-    // Handle form submission, e.g., send data to an API
+    setError(undefined);
+    startTransition(async () => {
+      const { error } = await register(data);
+      if (error) setError(error);
+    });
   };
 
   return (
@@ -43,69 +62,70 @@ const Page = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  {...register("username", {
-                    required: "Username is required",
-                  })}
-                  placeholder="Enter your username"
-                  autoComplete="off"
-                />
-                {errors.username && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.username.message}
-                  </span>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              {error && <p className="text-center text-destructive">{error}</p>}
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Username"
+                        {...field}
+                        autoComplete="off"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Invalid email address",
-                    },
-                  })}
-                  placeholder="Enter your email"
-                  autoComplete="off"
-                />
-                {errors.email && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.email.message}
-                  </span>
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Email"
+                        {...field}
+                        autoComplete="off"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 8,
-                      message: "Password must be at least 8 characters long",
-                    },
-                  })}
-                  placeholder="Enter your password"
-                />
-                {errors.password && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.password.message}
-                  </span>
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        placeholder="Password"
+                        type="password"
+                        {...field}
+                        autoComplete="off"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-            </div>
-            <Button type="submit" className="w-full mt-6">
-              Register
-            </Button>
-          </form>
+              />
+              <LoadingButton
+                loading={isPending}
+                type="submit"
+                className="w-full"
+              >
+                Create Account
+              </LoadingButton>
+            </form>
+          </Form>
         </CardContent>
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm text-center">

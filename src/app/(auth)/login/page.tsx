@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import {
   Card,
   CardContent,
@@ -8,95 +8,113 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../../../components/ui/form";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Button } from "../../../components/ui/button";
-import { Label } from "../../../components/ui/label";
 import { Input } from "../../../components/ui/input";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { registerSchema, registerValue } from "@/lib/validation";
+import { PasswordInput } from "@/components/PasswordInput";
+import LoadingButton from "@/components/LoadingButton";
+import { login } from "./actions";
 
 type Inputs = {
+  username: string;
   email: string;
   password: string;
 };
 
 const Page = () => {
-  const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
+  const [error, setError] = useState<string>();
+  const [isPending, startTransition] = useTransition();
+  const form = useForm<registerValue>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      username: "",
+      password: "",
+    },
+  });
 
   // Define the submit handler
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
-    router.push("/");
+    setError(undefined);
+    startTransition(async () => {
+      const { error } = await login(data);
+      if (error) setError(error);
+    });
   };
 
   return (
     <div className="w-full h-screen bg-card flex justify-center items-center">
-      <Card className="w-[30%] backdrop-blur-lg">
+      <Card className="w-[30%]">
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Login</CardTitle>
+          <CardTitle className="text-xl">LogIn</CardTitle>
           <CardDescription>
             Decentralized Identity Verification System
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Invalid email address",
-                    },
-                  })}
-                  placeholder="Enter your email"
-                  autoComplete="off"
-                />
-                {errors.email && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.email.message}
-                  </span>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              {error && <p className="text-center text-destructive">{error}</p>}
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Username"
+                        {...field}
+                        autoComplete="off"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 8,
-                      message: "Password must be at least 8 characters long",
-                    },
-                  })}
-                  placeholder="Enter your password"
-                />
-                {errors.password && (
-                  <span className="text-red-500 text-[12px]">
-                    {errors.password.message}
-                  </span>
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        placeholder="Password"
+                        type="password"
+                        {...field}
+                        autoComplete="off"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-            </div>
-            <Button type="submit" className="w-full mt-6">
-              Log In
-            </Button>
-          </form>
+              />
+              <LoadingButton
+                loading={isPending}
+                type="submit"
+                className="w-full"
+              >
+                Login
+              </LoadingButton>
+            </form>
+          </Form>
         </CardContent>
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm text-center">
-            Not register yet?{" "}
-            <Link href="/register" className="hover:underline">
-              Click here to register
+            Not a part yet?{" "}
+            <Link href="/login" className="hover:underline">
+              Register here
             </Link>{" "}
           </div>
         </CardFooter>

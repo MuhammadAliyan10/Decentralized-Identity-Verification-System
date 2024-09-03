@@ -1,5 +1,7 @@
+import { validateRequest } from "@/auth";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import { redirect } from "next/navigation";
 import React from "react";
 
 export default async function Layout({
@@ -7,6 +9,10 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
+  const { session } = await validateRequest();
+  if (!session) {
+    redirect("/login");
+  }
   return (
     <div className="grid min-h-screen grid-cols-12 gap-0">
       <div className="col-span-2 ">

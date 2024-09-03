@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch"] // Ensure this is needed for your use case
 }
 
 datasource db {
@@ -20,10 +20,21 @@ model DecentralizedUser {
   sessions Session[]
   @@map("users")
 }
+
 model Session {
   id String @id
   userId String
   expireAt DateTime 
-  user DecentralizedUser @relation(fields: [userId],references: [id], onDelete: Cascade)
+  user DecentralizedUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("sessions")
+}
+
+model Block {
+  id            String   @id @default(cuid())
+  index         Int
+  previousHash  String
+  currentHash   String
+  data          Json
+  timestamp     DateTime @default(now())
+  hash          String   @unique
 }
