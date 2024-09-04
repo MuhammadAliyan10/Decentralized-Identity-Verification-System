@@ -16,7 +16,7 @@ const Navbar = ({ className }: NavbarProps) => {
         <div className="flex w-full max-w-sm items-center space-x-2">
           <Input type="text" placeholder="Search" />
           <Button type="submit" size={"default"}>
-            <Search />
+            Search
           </Button>
         </div>
         <div className="flex justify-center items-center gap-x-4">

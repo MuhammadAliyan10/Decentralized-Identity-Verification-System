@@ -46,7 +46,7 @@ export async function login(
       sessionCookie.attributes
     );
 
-    redirect("/");
+    return redirect("/");
   } catch (error) {
     console.error("Login error:", error);
     return { error: "An error occurred while logging in. Please try again." };

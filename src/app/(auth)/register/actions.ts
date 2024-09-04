@@ -70,7 +70,7 @@ export async function register(
       sessionCookies.attributes
     );
 
-    redirect("/");
+    return redirect("/");
   } catch (error) {
     console.error("Registration error:", error);
     return {
