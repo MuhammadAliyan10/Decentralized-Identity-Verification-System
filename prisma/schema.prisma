@@ -9,7 +9,7 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-model DecentralizedUser {
+model User {
   id String @id 
   username String @unique
   displayName String
@@ -24,8 +24,8 @@ model DecentralizedUser {
 model Session {
   id String @id
   userId String
-  expireAt DateTime 
-  user DecentralizedUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("sessions")
 }
 

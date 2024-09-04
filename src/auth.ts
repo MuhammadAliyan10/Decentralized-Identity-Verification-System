@@ -5,7 +5,7 @@ import { Session } from "@prisma/client";
 import { cache } from "react";
 import { cookies } from "next/headers";
 
-const adapter = new PrismaAdapter(prisma.session, prisma.decentralizedUser);
+const adapter = new PrismaAdapter(prisma.session, prisma.user);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -39,9 +39,9 @@ interface DatabaseUserAttributes {
 }
 interface ExtendSessions extends Session {
   id: string;
-  expireAt: Date;
-  fresh: boolean;
   userId: string;
+  expiresAt: Date;
+  fresh: boolean;
 }
 
 export const validateRequest = cache(
@@ -82,10 +82,11 @@ export const validateRequest = cache(
             avatarUrl: result.user.avatarUrl,
           }
         : null;
+
       const session = result.session
         ? {
             id: result.session.id,
-            expireAt: result.session.expiresAt,
+            expiresAt: result.session.expiresAt,
             fresh: result.session.fresh,
             userId: result.session.userId,
           }

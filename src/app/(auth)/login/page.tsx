@@ -20,14 +20,13 @@ import {
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Input } from "../../../components/ui/input";
 import Link from "next/link";
-import { registerSchema, registerValue } from "@/lib/validation";
+import { loginSchema, registerSchema, registerValue } from "@/lib/validation";
 import { PasswordInput } from "@/components/PasswordInput";
 import LoadingButton from "@/components/LoadingButton";
 import { login } from "./actions";
 
 type Inputs = {
   username: string;
-  email: string;
   password: string;
 };
 
@@ -35,9 +34,8 @@ const Page = () => {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
   const form = useForm<registerValue>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
       username: "",
       password: "",
     },
@@ -113,7 +111,7 @@ const Page = () => {
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm text-center">
             Not a part yet?{" "}
-            <Link href="/login" className="hover:underline">
+            <Link href="/register" className="hover:underline">
               Register here
             </Link>{" "}
           </div>

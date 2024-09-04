@@ -23,7 +23,7 @@ import Link from "next/link";
 import { registerSchema, registerValue } from "@/lib/validation";
 import { PasswordInput } from "@/components/PasswordInput";
 import LoadingButton from "@/components/LoadingButton";
-import { register } from "./action";
+import { register } from "./actions";
 
 type Inputs = {
   username: string;
